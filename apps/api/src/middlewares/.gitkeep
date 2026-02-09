@@ -1,0 +1,2 @@
+# Middleware directory
+# Will contain: auth.ts, validation.ts, etc.
