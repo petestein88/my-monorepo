@@ -1,0 +1,44 @@
+[
+    {
+      "id": 1,
+      "label": "How does the mobile charging machine work?",
+      "description": "Simply place your phone inside the machine, and charging will start automatically. The system uses IoT to monitor and control charging securely."
+    },
+    {
+      "id": 2,
+      "label": "Is my phone safe inside the charging machine?",
+      "description": "Yes, the machine has a secure locking system and real-time monitoring to ensure the safety of your device."
+    },
+    {
+      "id": 3,
+      "label": "How do I know if my phone is fully charged?",
+      "description": "You can check the charging status on the machine’s display or through the connected mobile app."
+    },
+    {
+      "id": 4,
+      "label": "Can I stop charging before my phone is fully charged?",
+      "description": "Yes, you can unlock the machine at any time using the provided authentication method (OTP, QR code, or mobile app)."
+    },
+    {
+      "id": 5,
+      "label": "Is the charging speed fast?",
+      "description": "Yes, our machine supports fast charging for compatible devices. The speed depends on your phone model and battery health."
+    },
+    {
+      "id": 6,
+      "label": "Does the machine support all phone models?",
+      "description": "The machine is compatible with most smartphones that support USB Type-C, Micro-USB, or Lightning charging ports."
+    },
+    {
+      "id": 7,
+      "label": "What if there is a power outage while my phone is charging?",
+      "description": "The machine has a backup system to safely stop charging and keep your phone secure during a power failure."
+    },
+    {
+      "id": 8,
+      "label": "How much does it cost to use the charging machine?",
+      "description": "Pricing depends on the location and duration of charging. You can check the rates on the display or mobile app."
+    }
+    
+  ]
+  

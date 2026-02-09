@@ -1,0 +1,261 @@
+/* @tailwind base;
+@tailwind components;
+@tailwind utilities; */
+
+@layer base {
+  body {
+    @apply font-poppins font-normal text-base text-body bg-whiten relative z-1;
+  }
+}
+
+@layer components {
+}
+
+@layer utilities {
+  /* Chrome, Safari and Opera */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .no-scrollbar {
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+  }
+
+  .chat-height {
+    @apply h-[calc(100vh_-_8.125rem)] lg:h-[calc(100vh_-_5.625rem)];
+  }
+  .inbox-height {
+    @apply h-[calc(100vh_-_8.125rem)] lg:h-[calc(100vh_-_5.625rem)];
+  }
+}
+
+/* third-party libraries CSS */
+
+.tableCheckbox:checked ~ div span {
+  @apply opacity-100;
+}
+.tableCheckbox:checked ~ div {
+  @apply bg-primary border-primary;
+}
+
+.apexcharts-legend-text {
+  @apply !text-body;
+}
+.apexcharts-text {
+  @apply !fill-body;
+}
+.apexcharts-xcrosshairs {
+  @apply !fill-stroke;
+}
+.apexcharts-gridline {
+  @apply !stroke-stroke;
+}
+.apexcharts-legend-series {
+  @apply !inline-flex gap-1.5;
+}
+.apexcharts-xaxistooltip-bottom:after {
+  @apply !border-b-gray;
+}
+.apexcharts-xaxistooltip-bottom:before {
+  @apply !border-b-gray;
+}
+.apexcharts-xaxistooltip-bottom {
+  @apply !rounded !border-none !bg-gray !text-xs !font-medium !text-black;
+}
+.apexcharts-tooltip-series-group {
+  @apply !pl-1.5;
+}
+
+.flatpickr-wrapper {
+  @apply w-full;
+}
+.flatpickr-months .flatpickr-prev-month:hover svg,
+.flatpickr-months .flatpickr-next-month:hover svg {
+  @apply !fill-primary;
+}
+.flatpickr-calendar {
+  @apply !p-6 2xsm:!w-auto;
+}
+.flatpickr-months .flatpickr-prev-month,
+.flatpickr-months .flatpickr-next-month {
+  @apply !top-7;
+}
+.flatpickr-months .flatpickr-prev-month.flatpickr-prev-month,
+.flatpickr-months .flatpickr-next-month.flatpickr-prev-month {
+  @apply !left-7;
+}
+.flatpickr-months .flatpickr-prev-month.flatpickr-next-month,
+.flatpickr-months .flatpickr-next-month.flatpickr-next-month {
+  @apply !right-7;
+}
+.flatpickr-day.inRange {
+  box-shadow:
+    -5px 0 0 #eff4fb,
+    5px 0 0 #eff4fb;
+}
+.flatpickr-day.inRange,
+.flatpickr-day.prevMonthDay.inRange,
+.flatpickr-day.nextMonthDay.inRange,
+.flatpickr-day.today.inRange,
+.flatpickr-day.prevMonthDay.today.inRange,
+.flatpickr-day.nextMonthDay.today.inRange,
+.flatpickr-day:hover,
+.flatpickr-day.prevMonthDay:hover,
+.flatpickr-day.nextMonthDay:hover,
+.flatpickr-day:focus,
+.flatpickr-day.prevMonthDay:focus,
+.flatpickr-day.nextMonthDay:focus {
+  @apply border-gray bg-gray;
+}
+.flatpickr-day.selected,
+.flatpickr-day.startRange,
+.flatpickr-day.endRange,
+.flatpickr-day.selected.inRange,
+.flatpickr-day.startRange.inRange,
+.flatpickr-day.endRange.inRange,
+.flatpickr-day.selected:focus,
+.flatpickr-day.startRange:focus,
+.flatpickr-day.endRange:focus,
+.flatpickr-day.selected:hover,
+.flatpickr-day.startRange:hover,
+.flatpickr-day.endRange:hover,
+.flatpickr-day.selected.prevMonthDay,
+.flatpickr-day.startRange.prevMonthDay,
+.flatpickr-day.endRange.prevMonthDay,
+.flatpickr-day.selected.nextMonthDay,
+.flatpickr-day.startRange.nextMonthDay,
+.flatpickr-day.endRange.nextMonthDay {
+  background: #3c50e0;
+  @apply !border-primary !bg-primary hover:!border-primary hover:!bg-primary;
+}
+.flatpickr-day.selected.startRange + .endRange:not(:nth-child(7n + 1)),
+.flatpickr-day.startRange.startRange + .endRange:not(:nth-child(7n + 1)),
+.flatpickr-day.endRange.startRange + .endRange:not(:nth-child(7n + 1)) {
+  box-shadow: -10px 0 0 #3c50e0;
+}
+
+.map-btn .jvm-zoom-btn {
+  @apply flex items-center justify-center w-7.5 h-7.5 rounded border border-stroke hover:border-primary bg-white hover:bg-primary text-body hover:text-white text-2xl leading-none px-0 pt-0 pb-0.5;
+}
+.mapOne .jvm-zoom-btn {
+  @apply left-auto top-auto bottom-0;
+}
+.mapOne .jvm-zoom-btn.jvm-zoomin {
+  @apply right-10;
+}
+.mapOne .jvm-zoom-btn.jvm-zoomout {
+  @apply right-0;
+}
+.mapTwo .jvm-zoom-btn {
+  @apply top-auto bottom-0;
+}
+.mapTwo .jvm-zoom-btn.jvm-zoomin {
+  @apply left-0;
+}
+.mapTwo .jvm-zoom-btn.jvm-zoomout {
+  @apply left-10;
+}
+
+.taskCheckbox:checked ~ .box span {
+  @apply opacity-100;
+}
+.taskCheckbox:checked ~ p {
+  @apply line-through;
+}
+.taskCheckbox:checked ~ .box {
+  @apply bg-primary border-primary;
+}
+
+.custom-input-date::-webkit-calendar-picker-indicator {
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: 20px;
+}
+.custom-input-date-1::-webkit-calendar-picker-indicator {
+  background-image: url(./images/icon/icon-calendar.svg);
+}
+.custom-input-date-2::-webkit-calendar-picker-indicator {
+  background-image: url(./images/icon/icon-arrow-down.svg);
+}
+
+[x-cloak] {
+  display: none !important;
+}
+
+:where([class^='tabler-']) {
+  font-size: 1.5rem;
+}
+
+.overlay::before {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  left: 0;
+  top: 0;
+  @apply bg-bodyDisabled;
+}
+
+.apexcharts-text {
+  font-size: 10px !important;
+}
+.yarl__toolbar button {
+  padding: 0px !important;
+  min-width: 90px !important;
+  min-height: 20px !important;
+  font-size: 12px !important;
+  top: 18px !important;
+  position: absolute !important;
+}
+
+.drag-handle {
+  cursor: move; /* Indicate drag handle */
+}
+
+.apexcharts-slices .apexcharts-datalabels .apexcharts-text {
+  fill: rgb(255, 255, 255) !important;
+}
+
+.apexcharts-text {
+  font-size: 13px !important;
+  font-weight: bolder !important;
+  outline: none !important;
+}
+
+.apexcharts-tooltip-active {
+  color: black !important;
+  font-weight: 700 !important;
+}
+.apexcharts-legend-series {
+  z-index: 9999999999 !important;
+}
+
+.apexcharts-legend {
+  width: 100%;
+  max-width: 100%;
+}
+.apexcharts-legend {
+  overflow: visible;
+}
+@media (max-width: 500px) {
+  .apexcharts-legend {
+    /* position: relative !important;  */
+    left: 0;
+    right: 0;
+    max-height: none !important; /* Remove max-height if needed */
+    overflow: visible !important; /* Ensure visibility */
+  }
+
+  .apexcharts-legend.apx-legend-position-bottom.apexcharts-align-center {
+    top: unset !important;
+    bottom: 0px !important;
+  }
+}
+
+.apexcharts-legend.apexcharts-align-right.apx-legend-position-top {
+  right: 34px !important;
+  position: absolute;
+  left: 0px !important;
+  top: 25px !important;
+}

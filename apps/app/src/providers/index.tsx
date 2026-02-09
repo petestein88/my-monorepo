@@ -1,17 +1,21 @@
-// Placeholder - will be replaced with full providers from iot-frontend
-import { ReactNode } from 'react'
-import { BrowserRouter } from 'react-router-dom'
+import { PropsWithChildren } from 'react'
 
-interface ProvidersProps {
-  children: ReactNode
-}
+import { BrowserRouter as Router } from 'react-router-dom'
+import AuthProvider from './AuthProvider'
+import ModalProvider from './ModalProvider'
+import ToastProvider from './ToastProvider'
 
-function Providers({ children }: ProvidersProps) {
-  return (
-    <BrowserRouter basename="/app">
-      {children}
-    </BrowserRouter>
-  )
+type IProvidersProps = {} & PropsWithChildren
+
+const Providers = (props: IProvidersProps) => {
+    return (
+        <Router>
+            <ModalProvider>
+                <AuthProvider>{props.children}</AuthProvider>
+                <ToastProvider />
+            </ModalProvider>
+        </Router>
+    )
 }
 
 export default Providers
