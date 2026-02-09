@@ -51,6 +51,19 @@ describe("IoT backend", () => {
     assert.deepStrictEqual(JSON.parse(res.data), []);
   });
 
+  it("registers a new device via POST", async () => {
+    const req = createMockReq("POST", "/api/devices", { name: "Sensor A", type: "temperature" });
+    const res = createMockRes();
+    handleRequest(req, res);
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    assert.strictEqual(res.statusCode, 201);
+    const device = JSON.parse(res.data);
+    assert.strictEqual(device.name, "Sensor A");
+    assert.strictEqual(device.type, "temperature");
+    assert.ok(device.id.startsWith("device-"));
+    assert.ok(device.createdAt);
+  });
+
   it("returns 404 for unknown routes", () => {
     const req = createMockReq("GET", "/unknown");
     const res = createMockRes();
