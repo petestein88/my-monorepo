@@ -1,16 +1,27 @@
 {
-  "name": "my-monorepo",
+  "name": "sacred-monorepo",
   "version": "1.0.0",
   "private": true,
-  "description": "Monorepo containing IoT backend and frontend projects",
   "workspaces": [
-    "iot",
-    "iot-frontend"
+    "apps/*",
+    "packages/*"
   ],
   "scripts": {
-    "build": "npm run build --workspaces --if-present",
-    "test": "npm run test --workspaces --if-present",
-    "start:iot": "npm run start --workspace=iot",
-    "start:frontend": "npm run start --workspace=iot-frontend"
+    "dev:web": "npm run dev --workspace=apps/web",
+    "dev:app": "npm run dev --workspace=apps/app",
+    "dev:api": "npm run dev --workspace=apps/api",
+    "build:web": "npm run build --workspace=apps/web",
+    "build:app": "npm run build --workspace=apps/app",
+    "build:api": "npm run build --workspace=apps/api",
+    "build:all": "npm run build:web && npm run build:app && npm run build:api",
+    "lint": "npm run lint --workspaces",
+    "test": "npm run test --workspaces"
+  },
+  "devDependencies": {
+    "prettier": "^3.4.2"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
   }
 }
