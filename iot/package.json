@@ -1,0 +1,12 @@
+{
+  "name": "iot",
+  "version": "1.0.0",
+  "description": "IoT backend services for device management and data collection",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "test": "node --test src/**/*.test.js"
+  },
+  "keywords": ["iot", "backend"],
+  "license": "MIT"
+}
