@@ -1,32 +1,16 @@
-# Monorepo configuration for sacred.systems
-# Marketing site (apps/web) at root
-# Dashboard app (apps/app) at /app/*
-
+# Monorepo configuration - builds both marketing site and dashboard
 [build]
-  base = "apps/web"
-  command = "npm install && npm run build"
-  publish = "dist"
+  command = "npm install && cd apps/web && npm install && npm run build && cd ../app && npm install && npm run build && cd ../.. && mkdir -p apps/web/dist/app && cp -r apps/app/dist/* apps/web/dist/app/"
+  publish = "apps/web/dist"
 
 [build.environment]
   NODE_VERSION = "18"
 
-# Build the dashboard app as well
-[[plugins]]
-package = "@netlify/plugin-nextjs"
-
-# Redirect /app/* to the dashboard
-[[redirects]]
-  from = "/app/*"
-  to = "/.netlify/functions/app/:splat"
-  status = 200
-  force = true
-
-# SPA routing for marketing site (but not /app)
+# SPA routing for the entire site
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
-  force = false
 
 # Security headers
 [[headers]]
