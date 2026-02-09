@@ -1,0 +1,38 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    @apply border-sacred-white/10;
+  }
+
+  html {
+    @apply scroll-smooth;
+  }
+
+  body {
+    @apply bg-sacred-black text-sacred-white antialiased;
+  }
+}
+
+@layer utilities {
+  .no-scroll {
+    overflow: hidden;
+    height: 100vh;
+  }
+
+  .ellipsis {
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+}
+
+/* Google OAuth Button Styling */
+.google-login div[role="button"],
+.google-login div[role="button"] > *:first-child {
+  border: none;
+  box-shadow: none !important;
+  background-color: transparent !important;
+}
