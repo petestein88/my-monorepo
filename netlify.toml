@@ -1,12 +1,13 @@
-# Monorepo configuration - builds both marketing site and dashboard
+# Build configuration for unified app
 [build]
-  command = "npm install && cd apps/web && npm install && npm run build && cd ../app && npm install && npm run build && cd ../.. && mkdir -p apps/web/dist/app && cp -r apps/app/dist/* apps/web/dist/app/"
-  publish = "apps/web/dist"
+  base = "apps/app"
+  command = "npm install && npm run build"
+  publish = "dist"
 
 [build.environment]
   NODE_VERSION = "18"
 
-# SPA routing for the entire site
+# SPA routing
 [[redirects]]
   from = "/*"
   to = "/index.html"
