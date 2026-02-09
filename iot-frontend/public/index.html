@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IoT Dashboard</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>IoT Dashboard</h1>
+  </header>
+  <main>
+    <section id="device-list">
+      <h2>Devices</h2>
+      <ul id="devices"></ul>
+    </section>
+    <section id="add-device">
+      <h2>Register Device</h2>
+      <form id="device-form">
+        <label for="device-name">Name:</label>
+        <input type="text" id="device-name" name="name" required>
+        <label for="device-type">Type:</label>
+        <input type="text" id="device-type" name="type" required>
+        <button type="submit">Add Device</button>
+      </form>
+    </section>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,12 @@
+{
+  "name": "iot-frontend",
+  "version": "1.0.0",
+  "description": "Frontend application for interacting with the IoT backend services",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "npx serve public",
+    "test": "node --test src/**/*.test.js"
+  },
+  "keywords": ["iot", "frontend"],
+  "license": "MIT"
+}

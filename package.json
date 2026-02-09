@@ -1,0 +1,16 @@
+{
+  "name": "my-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Monorepo containing IoT backend and frontend projects",
+  "workspaces": [
+    "iot",
+    "iot-frontend"
+  ],
+  "scripts": {
+    "build": "npm run build --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "start:iot": "npm run start --workspace=iot",
+    "start:frontend": "npm run start --workspace=iot-frontend"
+  }
+}
