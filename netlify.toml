@@ -1,0 +1,30 @@
+# Main site configuration (Marketing site at sacred.systems)
+[build]
+  base = "apps/web"
+  command = "npm install && npm run build"
+  publish = "dist"
+
+# Redirects for SPA routing
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# Environment variables
+[build.environment]
+  NODE_VERSION = "18"
+
+# Headers for security
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "no-referrer-when-downgrade"
+
+# Optional: Configure a second site for the dashboard
+# You'll need to create a separate Netlify site and configure it with:
+# - Base directory: apps/app
+# - Build command: npm install && npm run build
+# - Publish directory: dist
+# - Then use Netlify's proxy rewrites to mount it at /app
