@@ -5,8 +5,8 @@
 const DEFAULT_PAGE_LIMIT = 10
 
 const APP_CONST = {
-    NAME: 'Manu-Mission',
-    DESCRIPTION: 'Mobile Charging',
+    NAME: 'Sacred',
+    DESCRIPTION: 'Reclaim Sacred Space',
     VALUE_NOT_PROVIDED: 'N/A',
     DATE: {
         DATE_FORMAT: 'MMM dd yyyy'
