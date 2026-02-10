@@ -7,6 +7,7 @@ import Challenges from './pages/Challenges'
 import Data from './pages/Data'
 import Friends from './pages/Friends'
 import Home from './pages/Home'
+import Landing from './pages/Landing'
 import SignIn from './pages/Login'
 import SignUp from './pages/Register'
 import Settings from './pages/Setting'
@@ -40,7 +41,6 @@ function App() {
                     <Route index element={<Home />} />
                     <Route path={utils.helpers.getRoute('/data')} element={<Data />} />
                     <Route path={utils.helpers.getRoute('/friends')} element={<Friends />} />
-
                     <Route path={utils.helpers.getRoute('/challenges')} element={<Challenges />} />
                     <Route path={utils.helpers.getRoute('/settings')} element={<Settings />} />
                     <Route path={utils.helpers.getRoute('/faqs')} element={<Faqs />} />
@@ -51,30 +51,21 @@ function App() {
 
     return (
         <Routes>
+            {/* Landing Page as main entry */}
+            <Route path='/' element={<Landing />} />
+            
+            {/* Auth Routes */}
             <Route
                 path={utils.helpers.getRoute('/auth/signin')}
-                element={
-                    <>
-                        <SignIn />
-                    </>
-                }
+                element={<SignIn />}
             />
             <Route
                 path={utils.helpers.getRoute('/auth/signup')}
-                element={
-                    <>
-                        <SignUp />
-                    </>
-                }
+                element={<SignUp />}
             />
-            <Route
-                path='*'
-                element={
-                    <>
-                        <NotFound />
-                    </>
-                }
-            />
+            
+            {/* 404 */}
+            <Route path='*' element={<NotFound />} />
         </Routes>
     )
 }
