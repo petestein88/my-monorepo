@@ -1,14 +1,173 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Reclaim what matters. Sacred helps you build healthier relationships with technology through transparency and community." />
-    <title>sacred - reclaim what matters</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sacred - Reclaim What Matters</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: #ffffff;
+            overflow-x: hidden;
+        }
+
+        .video-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: -1;
+        }
+
+        .video-background video {
+            min-width: 100%;
+            min-height: 100%;
+            width: auto;
+            height: auto;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            object-fit: cover;
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 0;
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 60px 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        h1 {
+            font-size: 3.5em;
+            font-weight: 700;
+            margin-bottom: 30px;
+            text-align: center;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .manifesto {
+            font-size: 1.2em;
+            line-height: 1.8;
+            margin-bottom: 20px;
+            text-align: left;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+        }
+
+        .manifesto p {
+            margin-bottom: 20px;
+        }
+
+        .emphasis {
+            font-weight: 600;
+            font-style: italic;
+        }
+
+        .cta {
+            text-align: center;
+            margin-top: 40px;
+        }
+
+        .cta-button {
+            display: inline-block;
+            padding: 15px 40px;
+            font-size: 1.2em;
+            font-weight: 600;
+            color: #000000;
+            background-color: #ffffff;
+            text-decoration: none;
+            border-radius: 50px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        .cta-button:hover {
+            background-color: #f0f0f0;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.4);
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.5em;
+            }
+
+            .manifesto {
+                font-size: 1em;
+            }
+
+            .cta-button {
+                font-size: 1em;
+                padding: 12px 30px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="video-background">
+        <video autoplay muted loop playsinline>
+            <source src="/assets/background-video.mp4" type="video/mp4">
+        </video>
+    </div>
+    
+    <div class="overlay"></div>
+    
+    <div class="container">
+        <h1>Sacred</h1>
+        
+        <div class="manifesto">
+            <p><span class="emphasis">We believe the home is sacred.</span><br>
+            <span class="emphasis">Real human connection is sacred.</span><br>
+            <span class="emphasis">Sleep is sacred.</span><br>
+            <span class="emphasis">You are sacred.</span></p>
+
+            <p>Our attention is scattered. Our sleep is broken. Our homes feel less like sanctuaries and more like extensions of the digital world. The tech giants have engineered addiction into your pocket—every scroll, every notification designed to keep you reaching.</p>
+
+            <p><span class="emphasis">But something shifts when you step away.</span></p>
+
+            <p>We're a community built on transparency and visibility into smartphone use in the home. We shine the light of truth—not to shame you, but to empower you. This isn't about willpower. It's about proximity. When you physically separate from your phone, something profound happens: your mind settles. Your body remembers what real rest feels like. Conversations go deeper. Books hold you longer than scrolls. And you sleep like you remember sleeping.</p>
+
+            <p>You decide when, where, and how you use your phone. You decide to reclaim your evenings. You decide your home is yours again. When you put your phone away at night, you're following through on the promises you make to yourself, your family, and those around you. You're showing respect for what truly matters—mealtimes, sleep, attention, and time itself.</p>
+
+            <p>Respect yourself enough to prioritize your sleep. Respect your potential. When you step away from the glow, something magical happens: you find yourself again. You find flow. You find presence. You find peace. The mundane becomes meditation. Reading becomes adventure. Boredom births creativity. You feel unbound. You feel free. You feel how you're meant to feel.</p>
+
+            <p>We're building a movement for creatives seeking focus, families seeking presence, sleepers seeking restoration, and anyone brave enough to question the life they're living—and curious enough to discover what lies on the other side.</p>
+
+            <p><span class="emphasis">Join thousands reclaiming what matters most.</span></p>
+
+            <p>Because when you leave your phone behind, you don't lose connection.<br>
+            <span class="emphasis">You find it.</span></p>
+
+            <p><span class="emphasis">Together, we are sacred.</span></p>
+        </div>
+
+        <div class="cta">
+            <a href="#" class="cta-button">reclaim sacred space</a>
+        </div>
+    </div>
+</body>
 </html>
