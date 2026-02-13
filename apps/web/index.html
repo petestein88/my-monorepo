@@ -100,7 +100,8 @@
         .about-btn {
             position: fixed;
             top: 20px;
-            right: 20px;
+            left: 50%;
+            transform: translateX(-50%);
             background: transparent;
             color: #e5e7eb;
             border: 1px solid rgba(229, 231, 235, 0.3);
@@ -196,6 +197,24 @@
             }
             50% {
                 text-shadow: 0 0 20px rgba(229, 231, 235, 0.6);
+            }
+        }
+
+        .bunny-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 30px;
+            display: block;
+            opacity: 0;
+            animation: fadeIn 1.5s ease-out 0.5s forwards, hop 2s ease-in-out 2s infinite;
+        }
+
+        @keyframes hop {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-10px);
             }
         }
 
@@ -302,6 +321,28 @@
             transform: none;
         }
 
+        .portal-btn {
+            display: inline-block;
+            width: 100%;
+            margin-top: 20px;
+            padding: 8px 0;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: #e5e7eb;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 400;
+            transition: all 0.3s;
+            text-align: center;
+            font-size: 0.95rem;
+        }
+
+        .portal-btn:hover {
+            background: rgba(255,255,255,0.1);
+            border-color: rgba(255,255,255,0.3);
+            color: #9ca3af;
+        }
+
         .footer {
             position: fixed;
             bottom: 20px;
@@ -382,7 +423,7 @@
     <!-- Dark overlay -->
     <div class="overlay"></div>
 
-    <!-- About Us Button -->
+    <!-- About Us Button (centered) -->
     <button class="about-btn" onclick="toggleAbout()">about us</button>
 
     <!-- About Us Overlay -->
@@ -423,17 +464,17 @@
     <!-- Main content -->
     <div class="container main-content" id="mainContent">
         <div class="content">
-            <!-- Hourglass icon -->
-            <svg class="hourglass-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M6 2h12v4l-6 6 6 6v4H6v-4l6-6-6-6V2z" stroke="#e5e7eb" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-                <path d="M6 2h12M6 22h12" stroke="#e5e7eb" stroke-width="1.5" stroke-linecap="round"/>
-                <path d="M12 8v8" stroke="#e5e7eb" stroke-width="1" stroke-linecap="round" opacity="0.6">
-                    <animate attributeName="y1" values="8;12;8" dur="2s" repeatCount="indefinite"/>
-                    <animate attributeName="y2" values="16;12;16" dur="2s" repeatCount="indefinite"/>
-                </path>
-                <circle cx="12" cy="10" r="1" fill="#e5e7eb" opacity="0.8">
-                    <animate attributeName="cy" values="10;14;10" dur="2s" repeatCount="indefinite"/>
-                </circle>
+            <!-- Bunny hopping icon -->
+            <svg class="bunny-icon" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <ellipse cx="50" cy="70" rx="20" ry="15" fill="white" opacity="0.9"/>
+                <circle cx="45" cy="40" r="15" fill="white" opacity="0.9"/>
+                <circle cx="55" cy="40" r="15" fill="white" opacity="0.9"/>
+                <ellipse cx="35" cy="25" rx="5" ry="15" fill="white" opacity="0.9"/>
+                <ellipse cx="65" cy="25" rx="5" ry="15" fill="white" opacity="0.9"/>
+                <circle cx="47" cy="38" r="2" fill="black"/>
+                <circle cx="53" cy="38" r="2" fill="black"/>
+                <line x1="50" y1="42" x2="50" y2="46" stroke="black" stroke-width="2"/>
+                <path d="M 45 46 Q 50 48 55 46" stroke="black" stroke-width="2" fill="none"/>
             </svg>
 
             <p class="tagline">reclaim sacred space</p>
@@ -445,6 +486,8 @@
                 </div>
 
                 <button type="submit" class="submit-btn">Join the Waitlist</button>
+                
+                <a href="https://app.sacred.systems" class="portal-btn">Enter Portal</a>
             </form>
 
             <div class="success-message" id="successMessage">
