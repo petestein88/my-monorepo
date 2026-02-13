@@ -6,6 +6,7 @@ import { useModal } from './ModalProvider'
 import InterceptorProvider from './InterceptorProvider'
 import ModalLayout from '../layout/ModalLayout'
 import { supabase } from '../config/supabase'
+import type { Session } from '@supabase/supabase-js'
 
 type IAuthState = 'loading' | 'authenticated' | 'unauthenticated' | 'error'
 
@@ -56,35 +57,46 @@ const AuthProvider = (props: IAuthProviderProps) => {
         window.scrollTo(0, 0)
     }, [pathname])
 
+    const applySession = useCallback((session: Session | null) => {
+        if (!session?.user) {
+            setUser(null)
+            setAuthState('unauthenticated')
+            return
+        }
+
+        const meta = (session.user.user_metadata ?? {}) as Record<string, any>
+
+        setUser({
+            id: session.user.id,
+            email: session.user.email ?? '',
+            first_name: meta.first_name,
+            last_name: meta.last_name
+        })
+        setAuthState('authenticated')
+    }, [])
+
     const fetchUser = useCallback(async () => {
         try {
-            const { data, error } = await supabase.auth.getUser()
+            const { data, error } = await supabase.auth.getSession()
             if (error) throw error
 
-            if (!data.user) {
+            applySession(data.session)
+        } catch (error: any) {
+            // IMPORTANT: "Auth session missing!" is normal when the user is simply logged out.
+            // We treat that as unauthenticated (no toast) to avoid confusing banners.
+            const message = String(error?.message ?? '')
+            if (message.toLowerCase().includes('auth session missing')) {
                 setUser(null)
                 setAuthState('unauthenticated')
-                return
+            } else {
+                setAuthState('error')
+                utils.toast.error({ message: error?.message ?? 'Authentication error' })
+                console.error('AuthProvider.fetchUser error', error)
             }
-
-            const meta = (data.user.user_metadata ?? {}) as Record<string, any>
-
-            setUser({
-                id: data.user.id,
-                email: data.user.email ?? '',
-                first_name: meta.first_name,
-                last_name: meta.last_name
-            })
-            setAuthState('authenticated')
-        } catch (error: any) {
-            setAuthState('error')
-            const message = error?.message ?? 'Authentication error'
-            utils.toast.error({ message })
-            console.error('AuthProvider.fetchUser error', error)
         } finally {
             setLoading(false)
         }
-    }, [])
+    }, [applySession])
 
     const update = async () => {
         setLoading(true)
@@ -95,14 +107,15 @@ const AuthProvider = (props: IAuthProviderProps) => {
         // Initial session check + keep in sync
         fetchUser()
 
-        const { data } = supabase.auth.onAuthStateChange(() => {
-            fetchUser()
+        const { data } = supabase.auth.onAuthStateChange((_event, session) => {
+            applySession(session)
+            setLoading(false)
         })
 
         return () => {
             data.subscription.unsubscribe()
         }
-    }, [fetchUser])
+    }, [fetchUser, applySession])
 
     useEffect(() => {
         if (authState !== 'loading') {
