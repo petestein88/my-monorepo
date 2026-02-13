@@ -11,20 +11,23 @@ import SignIn from './pages/Login'
 import SignUp from './pages/Register'
 import Settings from './pages/Setting'
 import Faqs from './pages/faqs/Faqs'
+import Portal from './pages/Portal'
 import { utils } from './utils'
+import { useAuthProviderContext } from './providers/AuthProvider'
 
 function App() {
     const { pathname } = useLocation()
     const navigate = useNavigate()
+    const { user } = useAuthProviderContext()
     const [routeType, setRouteType] = useState(utils.helpers.getRouteType(pathname))
 
     useEffect(() => {
         const urlPrefix = ENV_CONFIG.URL_PREFIX
         const updatedPathname = utils.string.removeTrailingSlash(pathname)
 
-        // Redirect root to signin
+        // Redirect root based on auth state
         if (pathname === '/') {
-            navigate('/auth/signin')
+            navigate(user ? '/app' : '/auth/signin')
             return
         }
 
@@ -35,14 +38,15 @@ function App() {
 
         setRouteType(utils.helpers.getRouteType(updatedPathname))
         window.scrollTo(0, 0)
-    }, [pathname, navigate])
+    }, [pathname, navigate, user])
 
     // Protected routes - require login
     if (routeType.protected) {
         return (
             <Routes>
                 <Route path={utils.helpers.getRoute('/app')} element={<Layout />}>
-                    <Route index element={<Home />} />
+                    <Route index element={<Portal />} />
+                    <Route path={utils.helpers.getRoute('/app/home')} element={<Home />} />
                     <Route path={utils.helpers.getRoute('/app/data')} element={<Data />} />
                     <Route path={utils.helpers.getRoute('/app/friends')} element={<Friends />} />
                     <Route path={utils.helpers.getRoute('/app/challenges')} element={<Challenges />} />
@@ -59,7 +63,7 @@ function App() {
             {/* Auth Routes */}
             <Route path='/auth/signin' element={<SignIn />} />
             <Route path='/auth/signup' element={<SignUp />} />
-            
+
             {/* 404 */}
             <Route path='*' element={<NotFound />} />
         </Routes>

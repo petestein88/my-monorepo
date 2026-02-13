@@ -1,37 +1,27 @@
 import { yupResolver } from '@hookform/resolvers/yup'
 import clsx from 'clsx'
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { Controller, SubmitHandler, useForm } from 'react-hook-form'
-import { Link, useNavigate, useSearchParams } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import Button from '../common/Button'
 import Input from '../common/Input'
-import GoogleAuthButton from '../components/lib/@react-oauth/google/GoogleAuthButton'
-import { CONST } from '../constants/index.const'
-import { LOCAL_STORAGE_ENUM } from '../enums/common.enum'
-import useAuth from '../hooks/useAuth'
 import AuthLayout from '../layout/AuthLayout'
 import { schemas } from '../schemas'
 import { utils } from '../utils'
-import { http } from '../utils/http'
+import { supabase } from '../config/supabase'
 import { useAuthProviderContext } from '../providers/AuthProvider'
 
 type IFormData = (typeof schemas.signUpSchema)['__outputType']
 
-const SignIn: React.FC = () => {
-    const { fetchUser } = useAuthProviderContext()
-    const { handleGoogleLoginFailure, handleGoogleLoginSuccess } = useAuth()
-
+const SignUp: React.FC = () => {
     const navigate = useNavigate()
-    const [params] = useSearchParams()
-    const [loading, setLoading] = useState(false)
+    const { fetchUser } = useAuthProviderContext()
 
-    const [mode] = useState(params.get('mode') ?? null)
-    const [token] = useState(params.get('token') ?? null)
+    const [loading, setLoading] = useState(false)
     const [isPasswordShown, setIsPasswordShown] = useState(false)
 
     const {
         control,
-        reset,
         handleSubmit,
         formState: { errors }
     } = useForm<IFormData>({
@@ -44,49 +34,36 @@ const SignIn: React.FC = () => {
         }
     })
 
-    useEffect(() => {
-        if (!token || !mode) return
-
-        if (mode === 'verifyEmail') {
-            try {
-                const decryptedToken = utils.crypto.decrypt(token.replace(/\s/g, '+'))
-                if (!decryptedToken) {
-                    throw CONST.RESPONSE_MESSAGES.SOMETHING_WENT_WRONG
-                }
-
-                const { first_name, last_name, email } = JSON.parse(decryptedToken) as {
-                    email: string
-                    first_name: string
-                    last_name: string
-                }
-
-                reset({
-                    email,
-                    first_name,
-                    last_name
-                })
-            } catch (error: unknown) {
-                utils.toast.error(utils.error.handler(error))
-            }
-        }
-    }, [token, mode, reset])
-
     const onSubmit: SubmitHandler<IFormData> = async credentials => {
         setLoading(true)
         try {
-            const { data } = await http({
-                url: '/auth/signup',
-                method: 'POST',
-                data: credentials
+            const { data, error } = await supabase.auth.signUp({
+                email: credentials.email,
+                password: credentials.password,
+                options: {
+                    data: {
+                        first_name: credentials.first_name,
+                        last_name: credentials.last_name
+                    }
+                }
             })
 
-            localStorage.setItem(LOCAL_STORAGE_ENUM.AUTH_TOKEN, data.token)
-            localStorage.setItem(LOCAL_STORAGE_ENUM.OPEN_ADD_SLOT_MODAL, 'true')
-            fetchUser()
-            utils.toast.success({ message: 'Signup successfully' })
-            navigate(utils.helpers.getRoute('/'))
-        } catch (error: unknown) {
-            utils.toast.error(utils.error.handler(error))
+            if (error) throw error
+
+            // If email confirmation is off, you typically get a session immediately.
+            if (data.session) {
+                await fetchUser()
+                utils.toast.success({ message: 'Account created' })
+                navigate(utils.helpers.getRoute('/app'))
+                return
+            }
+
+            utils.toast.success({ message: 'Account created. Please sign in.' })
+            navigate(utils.helpers.getRoute('/auth/signin'))
+        } catch (error: any) {
+            console.error('SignUp error', error)
+            const message = error?.message ?? 'Sign up failed'
+            utils.toast.error({ message })
         } finally {
             setLoading(false)
         }
@@ -129,6 +106,7 @@ const SignIn: React.FC = () => {
                         )}
                     />
                 </div>
+
                 <Controller
                     name='email'
                     control={control}
@@ -176,18 +154,11 @@ const SignIn: React.FC = () => {
                     )}
                 />
 
-                <div className='mb-5  flex flex-col items-center justify-center'>
+                <div className='mb-5 flex flex-col items-center justify-center'>
                     <Button label='Sign Up' loading={loading} sizeVariant='md' className='max-w-[400px] w-[80%]' />
 
-                    <div className='flex justify-center my-4 rounded-lg'>
-                        <GoogleAuthButton
-                            handleGoogleLoginSuccess={handleGoogleLoginSuccess}
-                            handleGoogleLoginFailure={handleGoogleLoginFailure}
-                        />
-                    </div>
-
-                    <div className='flex justify-center items-center flex-wrap text-black text-sm font-normal mt-2'>
-                        Already have an account? Please&nbsp;
+                    <div className='flex justify-center items-center flex-wrap text-black text-sm font-normal mt-3'>
+                        Already have an account?&nbsp;
                         <Link
                             to={utils.helpers.getRoute('/auth/signin')}
                             className='text-primary font-semibold hover:underline'
@@ -201,4 +172,4 @@ const SignIn: React.FC = () => {
     )
 }
 
-export default SignIn
+export default SignUp

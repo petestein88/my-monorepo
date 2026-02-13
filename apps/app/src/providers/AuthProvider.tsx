@@ -1,30 +1,29 @@
 import { createContext, PropsWithChildren, useCallback, useContext, useEffect, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import Loader from '../common/Loader'
-import { LOCAL_STORAGE_ENUM } from '../enums/common.enum'
 import { utils } from '../utils'
-import { http } from '../utils/http'
 import { useModal } from './ModalProvider'
 import InterceptorProvider from './InterceptorProvider'
 import ModalLayout from '../layout/ModalLayout'
+import { supabase } from '../config/supabase'
 
 type IAuthState = 'loading' | 'authenticated' | 'unauthenticated' | 'error'
 
 type IUser = {
-    phone_number: string
-    device_id: string
-    id: number
-    first_name: string
-    last_name: string
+    id: string
     email: string
+    first_name?: string
+    last_name?: string
+    phone_number?: string
+    device_id?: string
 }
 
 type IAuthProviderContext = {
     loading: boolean
     user: IUser | null
-    update: (token?: string) => void
+    update: () => Promise<void>
     fetchUser: () => Promise<void>
-    setUser: React.Dispatch<React.SetStateAction<IUser>>
+    setUser: React.Dispatch<React.SetStateAction<IUser | null>>
     setAuthState: React.Dispatch<React.SetStateAction<IAuthState>>
 }
 
@@ -33,7 +32,7 @@ type IAuthProviderProps = PropsWithChildren & {}
 const AuthProviderContext = createContext<IAuthProviderContext>({
     loading: true,
     user: null,
-    update: _ => {},
+    update: async () => {},
     fetchUser: async () => {},
     setUser: () => {},
     setAuthState: () => {}
@@ -57,30 +56,66 @@ const AuthProvider = (props: IAuthProviderProps) => {
         window.scrollTo(0, 0)
     }, [pathname])
 
-    useEffect(() => {
-        const token = utils.helpers.auth.isUserLoggedIn()
-        if (token) {
-            fetchUser()
-        } else {
-            setAuthState('unauthenticated')
+    const fetchUser = useCallback(async () => {
+        try {
+            const { data, error } = await supabase.auth.getUser()
+            if (error) throw error
+
+            if (!data.user) {
+                setUser(null)
+                setAuthState('unauthenticated')
+                return
+            }
+
+            const meta = (data.user.user_metadata ?? {}) as Record<string, any>
+
+            setUser({
+                id: data.user.id,
+                email: data.user.email ?? '',
+                first_name: meta.first_name,
+                last_name: meta.last_name
+            })
+            setAuthState('authenticated')
+        } catch (error: any) {
+            setAuthState('error')
+            const message = error?.message ?? 'Authentication error'
+            utils.toast.error({ message })
+            console.error('AuthProvider.fetchUser error', error)
+        } finally {
             setLoading(false)
         }
     }, [])
+
+    const update = async () => {
+        setLoading(true)
+        await fetchUser()
+    }
+
+    useEffect(() => {
+        // Initial session check + keep in sync
+        fetchUser()
+
+        const { data } = supabase.auth.onAuthStateChange(() => {
+            fetchUser()
+        })
+
+        return () => {
+            data.subscription.unsubscribe()
+        }
+    }, [fetchUser])
 
     useEffect(() => {
         if (authState !== 'loading') {
             if (routeType.protected && !user) {
                 navigate(utils.helpers.getRoute('/auth/signin'))
             } else if (routeType.unprotected && user) {
-                navigate(utils.helpers.getRoute('/'))
+                navigate(utils.helpers.getRoute('/app'))
             }
         }
-    }, [routeType, pathname, authState, user])
+    }, [routeType, pathname, authState, user, navigate])
 
     useEffect(() => {
-        if (!user) {
-            return
-        }
+        if (!user) return
 
         const openAddSlotModal = localStorage.getItem('open-add-slot-modal') === 'true'
 
@@ -92,38 +127,10 @@ const AuthProvider = (props: IAuthProviderProps) => {
                 }
             })
         }
-    }, [user])
-
-    const update = (newToken?: string) => {
-        if (newToken) {
-            localStorage.setItem(LOCAL_STORAGE_ENUM.AUTH_TOKEN, newToken)
-        }
-        setTimeout(fetchUser, 100)
-    }
-
-    const fetchUser = useCallback(async () => {
-        try {
-            const response = await http({
-                url: 'user/me',
-                method: 'GET'
-            })
-
-            if (!response.data.user) {
-                return
-            }
-
-            setUser(response.data.user)
-            setAuthState('authenticated')
-        } catch (error) {
-            setAuthState('error')
-            utils.toast.error(utils.error.handler(error))
-        } finally {
-            setLoading(false)
-        }
-    }, [setLoading])
+    }, [user, modalContext])
 
     const checkLoading = () => {
-        return loading || ['loading', 'error'].includes(authState)
+        return loading || authState === 'loading'
     }
 
     return (
