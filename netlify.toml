@@ -1,6 +1,6 @@
 # Build configuration for unified app
 [build]
-  base = "apps/app"
+  base = "apps/web"
   command = "npm install && npm run build"
   publish = "dist"
 
