@@ -7,7 +7,6 @@ import Challenges from './pages/Challenges'
 import Data from './pages/Data'
 import Friends from './pages/Friends'
 import Home from './pages/Home'
-import Landing from './pages/Landing'
 import SignIn from './pages/Login'
 import SignUp from './pages/Register'
 import Settings from './pages/Setting'
@@ -22,6 +21,12 @@ function App() {
     useEffect(() => {
         const urlPrefix = ENV_CONFIG.URL_PREFIX
         const updatedPathname = utils.string.removeTrailingSlash(pathname)
+
+        // Redirect root to signin
+        if (pathname === '/') {
+            navigate('/auth/signin')
+            return
+        }
 
         if (urlPrefix && pathname === '/') {
             navigate(utils.helpers.getRoute('/'))
@@ -51,9 +56,6 @@ function App() {
     // Public routes - no login required
     return (
         <Routes>
-            {/* Landing Page */}
-            <Route path='/' element={<Landing />} />
-            
             {/* Auth Routes */}
             <Route path='/auth/signin' element={<SignIn />} />
             <Route path='/auth/signup' element={<SignUp />} />
