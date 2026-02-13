@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sacred Systems - Break Free From Phone Addiction</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        @import url('https://fonts.googleapis.com/css2?family=Cormorant:wght@300;400&display=swap');
+
+        body {
+            font-family: 'Cormorant', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, serif;
+            color: #1f2937;
+            overflow-x: hidden;
+        }
+
+        /* Dark background */
+        .background-image {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -3;
+            background: linear-gradient(135deg, #2d3748 0%, #1a202c 100%);
+        }
+
+        /* About Us overlay */
+        .about-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 1000;
+            display: none;
+            opacity: 0;
+            transition: opacity 0.8s ease;
+            cursor: pointer;
+        }
+
+        .about-overlay.active {
+            display: block;
+            opacity: 1;
+        }
+
+        .about-content {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 60px 30px;
+            height: 100vh;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .about-text {
+            color: #e5e7eb;
+            font-size: 18px;
+            line-height: 1.8;
+            text-align: left;
+            opacity: 0;
+            animation: fadeInText 1.2s ease-out 0.5s forwards;
+        }
+
+        @keyframes fadeInText {
+            to {
+                opacity: 1;
+            }
+        }
+
+        .about-text p {
+            margin-bottom: 24px;
+        }
+
+        .about-text strong {
+            font-weight: 600;
+        }
+
+        .about-btn {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: transparent;
+            color: #e5e7eb;
+            border: 1px solid rgba(229, 231, 235, 0.3);
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Cormorant', serif;
+            letter-spacing: 0.05em;
+            z-index: 100;
+        }
+
+        .about-btn:hover {
+            background: rgba(229, 231, 235, 0.1);
+            border-color: rgba(229, 231, 235, 0.5);
+        }
+
+        .main-content {
+            transition: opacity 0.6s ease;
+        }
+
+        .main-content.faded {
+            opacity: 0;
+        }
+
+        /* Dark overlay for text readability */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.3);
+            z-index: -1;
+        }
+
+        /* Main content container */
+        .container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .content {
+            max-width: 600px;
+            width: 100%;
+            background: transparent;
+            padding: 20px;
+            border-radius: 16px;
+            box-shadow: none;
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            font-size: 18px;
+            font-weight: 400;
+            color: #e5e7eb;
+            margin-bottom: 8px;
+            text-align: center;
+            line-height: 1.2;
+            text-transform: lowercase;
+        }
+
+        .tagline {
+            font-size: 27px;
+            color: #e5e7eb;
+            text-align: center;
+            margin-bottom: 24px;
+            font-style: normal;
+            font-weight: 300;
+            letter-spacing: 0.12em;
+            text-transform: lowercase;
+            opacity: 0;
+            animation: fadeInGlow 1.5s ease-out 0.8s forwards, gentleGlow 4s ease-in-out 2.5s infinite;
+        }
+
+        @keyframes fadeInGlow {
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes gentleGlow {
+            0%, 100% {
+                text-shadow: 0 0 10px rgba(229, 231, 235, 0.3);
+            }
+            50% {
+                text-shadow: 0 0 20px rgba(229, 231, 235, 0.6);
+            }
+        }
+
+        .bunny-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 30px;
+            display: block;
+            opacity: 0;
+            animation: fadeIn 1.5s ease-out 0.5s forwards, hop 2s ease-in-out 2s infinite;
+        }
+
+        @keyframes hop {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        .hourglass-icon {
+            width: 40px;
+            height: 40px;
+            margin: 0 auto 24px;
+            display: block;
+            opacity: 0;
+            animation: fadeIn 1.5s ease-out 0.5s forwards;
+        }
+
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+            }
+        }
+
+        .benefits {
+            margin-bottom: 40px;
+        }
+
+        .benefit {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 20px;
+        }
+
+        .benefit-icon {
+            flex-shrink: 0;
+            width: 24px;
+            height: 24px;
+            background: #10b981;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            margin-right: 12px;
+            margin-top: 2px;
+        }
+
+        .benefit-text {
+            color: #374151;
+            font-size: 1rem;
+            line-height: 1.6;
+        }
+
+        /* Form styles */
+        .signup-form {
+            margin-top: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 4px;
+        }
+
+        label {
+            display: none;
+        }
+
+        input[type="email"],
+        input[type="text"] {
+            width: 100%;
+            padding: 8px 0;
+            border: none;
+            background: transparent;
+            color: #e5e7eb;
+            font-size: 0.95rem;
+            transition: color 0.3s ease;
+            text-align: center;
+        }
+
+        input[type="email"]::placeholder,
+        input[type="text"]::placeholder {
+            color: #d1d5db;
+        }
+
+        input[type="email"]:focus,
+        input[type="text"]:focus {
+            outline: none;
+            color: #9ca3af;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 8px 0;
+            background: transparent;
+            color: #e5e7eb;
+            border: none;
+            font-size: 0.95rem;
+            font-weight: 400;
+            cursor: pointer;
+            transition: color 0.3s ease;
+            text-align: center;
+        }
+
+        .submit-btn:hover {
+            color: #9ca3af;
+        }
+
+        .submit-btn:active {
+            transform: none;
+        }
+
+        .portal-btn {
+            display: inline-block;
+            width: 100%;
+            margin-top: 20px;
+            padding: 8px 0;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: #e5e7eb;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 400;
+            transition: all 0.3s;
+            text-align: center;
+            font-size: 0.95rem;
+        }
+
+        .portal-btn:hover {
+            background: rgba(255,255,255,0.1);
+            border-color: rgba(255,255,255,0.3);
+            color: #9ca3af;
+        }
+
+        .footer {
+            position: fixed;
+            bottom: 20px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            font-size: 0.75rem;
+            color: #e5e7eb;
+            opacity: 0.6;
+        }
+
+        .privacy {
+            margin-top: 16px;
+            font-size: 0.85rem;
+            color: #6b7280;
+            text-align: center;
+        }
+
+        .success-message {
+            display: none;
+            background: #d1fae5;
+            border: 2px solid #10b981;
+            color: #065f46;
+            padding: 16px;
+            border-radius: 8px;
+            margin-top: 20px;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .error-message {
+            display: none;
+            background: #fee2e2;
+            border: 2px solid #ef4444;
+            color: #991b1b;
+            padding: 16px;
+            border-radius: 8px;
+            margin-top: 20px;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+
+            .tagline {
+                font-size: 1.1rem;
+            }
+
+            .content {
+                padding: 30px 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Fallback background -->
+    <div class="background-image"></div>
+
+    <!-- Dark overlay -->
+    <div class="overlay"></div>
+
+    <!-- About Us Button -->
+    <button class="about-btn" onclick="toggleAbout()">about us</button>
+
+    <!-- About Us Overlay -->
+    <div class="about-overlay" id="aboutOverlay" onclick="toggleAbout()">
+        <div class="about-content">
+            <svg class="hourglass-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M6 2h12v4l-6 6 6 6v4H6v-4l6-6-6-6V2z" stroke="#e5e7eb" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                <path d="M6 2h12M6 22h12" stroke="#e5e7eb" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+            
+            <div class="about-text">
+                <p>We <strong>believe</strong> the home is <strong>sacred</strong>. Real human connection is <strong>sacred</strong>. Sleep is <strong>sacred</strong>. You are <strong>sacred</strong>.</p>
+                
+                <p>Our <strong>attention</strong> is scattered. Our <strong>sleep</strong> is broken. Our homes feel less like sanctuaries and more like extensions of the digital world. The tech giants have <strong>engineered</strong> addiction into your pocket—every scroll, every notification <strong>designed</strong> to keep you reaching.</p>
+                
+                <p>But <strong>something</strong> shifts when you step away.</p>
+                
+                <p>We're a <strong>community</strong> built on transparency and visibility into smartphone use in the home. We shine the light of truth—not to shame you, but to <strong>empower</strong> you. This isn't about willpower. It's about <strong>proximity</strong>. When you physically separate from your phone, something profound happens: your mind settles. Your body remembers what real rest feels like. <strong>Conversations</strong> go deeper. Books hold you longer than scrolls. And you sleep like you remember sleeping.</p>
+                
+                <p>You <strong>decide</strong> when, where, and how you use your phone. You decide to reclaim your evenings. You decide your home is yours again. When you put your phone away at night, you're following through on the promises you make to yourself, your family, and those around you. You're showing <strong>respect</strong> for what truly matters—mealtimes, sleep, attention, and time itself.</p>
+                
+                <p><strong>Respect</strong> yourself enough to prioritize your sleep. Respect your potential. When you step away from the glow, something magical happens: you find yourself again. You find <strong>flow</strong>. You find <strong>presence</strong>. You find <strong>peace</strong>. The mundane becomes meditation. Reading becomes adventure. Boredom births creativity. You feel <strong>unbound</strong>. You feel free. You feel how you're meant to feel.</p>
+                
+                <p>We're building a <strong>movement</strong> for creatives seeking focus, families seeking presence, sleepers seeking restoration, and anyone brave enough to question the life they're living—and curious enough to discover what lies on the other side.</p>
+                
+                <p>Join thousands reclaiming what matters most. Because when you leave your phone behind, you don't lose connection. You <strong>find</strong> it. Together, we are <strong>sacred</strong>.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main content -->
+    <div class="container main-content" id="mainContent">
+        <div class="content">
+            <!-- Bunny hopping icon -->
+            <svg class="bunny-icon" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <ellipse cx="50" cy="70" rx="20" ry="15" fill="white" opacity="0.9"/>
+                <circle cx="45" cy="40" r="15" fill="white" opacity="0.9"/>
+                <circle cx="55" cy="40" r="15" fill="white" opacity="0.9"/>
+                <ellipse cx="35" cy="25" rx="5" ry="15" fill="white" opacity="0.9"/>
+                <ellipse cx="65" cy="25" rx="5" ry="15" fill="white" opacity="0.9"/>
+                <circle cx="47" cy="38" r="2" fill="black"/>
+                <circle cx="53" cy="38" r="2" fill="black"/>
+                <line x1="50" y1="42" x2="50" y2="46" stroke="black" stroke-width="2"/>
+                <path d="M 45 46 Q 50 48 55 46" stroke="black" stroke-width="2" fill="none"/>
+            </svg>
+
+            <p class="tagline">reclaim sacred space</p>
+
+            <form class="signup-form" id="signupForm">
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" name="email" required placeholder="your@email.com">
+                </div>
+
+                <button type="submit" class="submit-btn">Join the Waitlist</button>
+                
+                <a href="https://sacredapp.netlify.app/auth/signin" class="portal-btn">Enter Portal</a>
+            </form>
+
+            <div class="success-message" id="successMessage">
+                ✓ Success! You're on the waitlist. Check your email for confirmation.
+            </div>
+
+            <div class="error-message" id="errorMessage">
+                Something went wrong. Please try again.
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        sacred systems pty ltd
+    </div>
+
+    <script>
+        function getReferralCode() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('ref') || '';
+        }
+
+        document.getElementById('signupForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const successMsg = document.getElementById('successMessage');
+            const errorMsg = document.getElementById('errorMessage');
+            
+            // For now, just show success (you'll integrate Mailchimp later)
+            successMsg.style.display = 'block';
+            errorMsg.style.display = 'none';
+            document.getElementById('signupForm').style.display = 'none';
+        });
+
+        function toggleAbout() {
+            const overlay = document.getElementById('aboutOverlay');
+            const mainContent = document.getElementById('mainContent');
+            
+            if (overlay.classList.contains('active')) {
+                overlay.classList.remove('active');
+                mainContent.classList.remove('faded');
+            } else {
+                mainContent.classList.add('faded');
+                setTimeout(() => {
+                    overlay.classList.add('active');
+                }, 300);
+            }
+        }
+    </script>
+</body>
+</html>
