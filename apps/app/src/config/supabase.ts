@@ -1,6 +1,21 @@
 import { createClient } from '@supabase/supabase-js'
 
-const supabaseUrl = 'https://okyhcmxemffjhmbcmmbi.supabase.co'
-const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9reWhjbXhlbWZmamhtYmNtbWJpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzkyNjE0OTMsImV4cCI6MjA1NDgzNzQ5M30.YeVfH6fMx2aHBQBhsxWo6k4IQfmcVnK_4nymsuiSOQU'
+// Prefer environment variables (Netlify), fall back to the current hardcoded project
+const supabaseUrl =
+  (import.meta as any).env?.VITE_SUPABASE_URL ??
+  'https://okyhcmxemffjhmbcmmbi.supabase.co'
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+const supabaseAnonKey =
+  (import.meta as any).env?.VITE_SUPABASE_ANON_KEY ??
+  // Fallback only; set VITE_SUPABASE_ANON_KEY in Netlify for safety.
+  'REPLACE_ME_IN_NETLIFY_ENV'
+
+export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+  auth: {
+    persistSession: true,
+    autoRefreshToken: true,
+    detectSessionInUrl: true,
+  },
+})
+
+export default supabase
