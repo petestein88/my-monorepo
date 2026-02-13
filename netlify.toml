@@ -1,0 +1,15 @@
+[build]
+  publish = "."
+  command = "echo 'No build needed - static HTML'"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+  force = false
+
+# Make all HTML files accessible
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Access-Control-Allow-Origin = "*"
