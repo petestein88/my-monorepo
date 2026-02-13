@@ -7,6 +7,7 @@ import Challenges from './pages/Challenges'
 import Data from './pages/Data'
 import Friends from './pages/Friends'
 import Home from './pages/Home'
+import Landing from './pages/Landing'
 import SignIn from './pages/Login'
 import SignUp from './pages/Register'
 import Settings from './pages/Setting'
@@ -20,8 +21,6 @@ function App() {
 
     useEffect(() => {
         const urlPrefix = ENV_CONFIG.URL_PREFIX
-
-        // Ensure we always have a valid path
         const updatedPathname = utils.string.removeTrailingSlash(pathname)
 
         if (urlPrefix && pathname === '/') {
@@ -33,48 +32,34 @@ function App() {
         window.scrollTo(0, 0)
     }, [pathname, navigate])
 
+    // Protected routes - require login
     if (routeType.protected) {
         return (
             <Routes>
-                <Route path={utils.helpers.getRoute('/')} element={<Layout />}>
+                <Route path={utils.helpers.getRoute('/app')} element={<Layout />}>
                     <Route index element={<Home />} />
-                    <Route path={utils.helpers.getRoute('/data')} element={<Data />} />
-                    <Route path={utils.helpers.getRoute('/friends')} element={<Friends />} />
-
-                    <Route path={utils.helpers.getRoute('/challenges')} element={<Challenges />} />
-                    <Route path={utils.helpers.getRoute('/settings')} element={<Settings />} />
-                    <Route path={utils.helpers.getRoute('/faqs')} element={<Faqs />} />
+                    <Route path={utils.helpers.getRoute('/app/data')} element={<Data />} />
+                    <Route path={utils.helpers.getRoute('/app/friends')} element={<Friends />} />
+                    <Route path={utils.helpers.getRoute('/app/challenges')} element={<Challenges />} />
+                    <Route path={utils.helpers.getRoute('/app/settings')} element={<Settings />} />
+                    <Route path={utils.helpers.getRoute('/app/faqs')} element={<Faqs />} />
                 </Route>
             </Routes>
         )
     }
 
+    // Public routes - no login required
     return (
         <Routes>
-            <Route
-                path={utils.helpers.getRoute('/auth/signin')}
-                element={
-                    <>
-                        <SignIn />
-                    </>
-                }
-            />
-            <Route
-                path={utils.helpers.getRoute('/auth/signup')}
-                element={
-                    <>
-                        <SignUp />
-                    </>
-                }
-            />
-            <Route
-                path='*'
-                element={
-                    <>
-                        <NotFound />
-                    </>
-                }
-            />
+            {/* Landing Page */}
+            <Route path='/' element={<Landing />} />
+            
+            {/* Auth Routes */}
+            <Route path='/auth/signin' element={<SignIn />} />
+            <Route path='/auth/signup' element={<SignUp />} />
+            
+            {/* 404 */}
+            <Route path='*' element={<NotFound />} />
         </Routes>
     )
 }
