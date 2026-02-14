@@ -1,20 +1,29 @@
 import { Clock, Gift, Globe, Heart, PlusCircle, Swords, Target, Trophy, Users, UsersRound } from 'lucide-react'
-import { useEffect, useState } from 'react'
-import InfiniteScroll from 'react-infinite-scroll-component'
+import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import Loader from '../common/Loader'
 import NoDataToShow from '../common/Placeholders/NoDataToShow'
 import { useAuthProviderContext } from '../providers/AuthProvider'
 import { useModal } from '../providers/ModalProvider'
+import { supabase } from '../config/supabase'
 import { utils } from '../utils'
-import { dateTime } from '../utils/date'
-import { http } from '../utils/http'
 
-type IFriend = {
+type LeaderboardMode = 'all_time' | 'this_week'
+
+type GlobalLeaderboardRow = {
+    user_id: string
+    email: string | null
+    display_name: string | null
+    total_hours: number | string | null
+    total_seconds: number | string | null
+}
+
+type ILeaderboardRow = {
+    userId: string
     isMe: boolean
     name: string
+    email: string
     totalHours: number
-    totalDays: number
 }
 
 export const challengeTypes = [
@@ -48,125 +57,14 @@ export const challengeTypes = [
 
 export default function Home() {
     const { user } = useAuthProviderContext()
-    const [page, setPage] = useState(1)
-    const [hasMore, setHasMore] = useState(true)
-    const [leaderboard, setLeaderboard] = useState<IFriend[]>([])
-    const [stats, setStats] = useState<{ label: string; value: string; icon: any }[]>([])
-    const [loading, setLoading] = useState(true)
-
     const modalContext = useModal()
 
-    const fetchDashboardData = async () => {
-        try {
-            const response = await http({
-                url: `user/dashboard?page=${page}&limit=5`,
-                method: 'GET'
-            })
+    const [stats, setStats] = useState<{ label: string; value: string; icon: any }[]>([])
 
-            if (response.data.status) {
-                const {
-                    daily_average,
-                    total_hours_saved,
-                    streak_days,
-                    leaderboard: newLeaderboard,
-                    totalHoursGlobalImpact: total_hours_global_impact
-                } = response.data.data
-                const dailyAverage = dateTime.formatTime(daily_average)
-                const totalHoursSaved = dateTime.formatHours(parseFloat(total_hours_saved))
-                const totalHoursGlobalImpact = dateTime.formatGlobalHours(parseFloat(total_hours_global_impact))
-
-                setStats([
-                    { label: 'Current Streak', value: `${streak_days} days`, icon: Trophy },
-                    { label: 'Daily Average', value: dailyAverage, icon: Clock },
-                    { label: 'Total Hours Saved', value: totalHoursSaved, icon: Clock },
-                    { label: 'Global Impact', value: `${totalHoursGlobalImpact} hours`, icon: Target } // Static
-                ])
-
-                const processedData = newLeaderboard
-                    .map((currentFriend: any) => {
-                        if (!currentFriend) return null
-
-                        const chargingDuration = parseInt(currentFriend.total_charging_duration || '0')
-
-                        return {
-                            isMe: currentFriend.id === user.id,
-                            totalHours: parseFloat((chargingDuration / 60).toFixed(2)),
-                            name: utils.helpers.user.getFullName(currentFriend),
-                            totalDays: parseFloat((chargingDuration / 1440).toFixed(1))
-                        } as IFriend
-                    })
-                    .filter(Boolean)
-
-                setLeaderboard(processedData)
-            } else {
-                console.error('Error fetching dashboard data:', response)
-            }
-        } catch (error) {
-            console.error('Error fetching dashboard data:', error)
-        } finally {
-            setLoading(false)
-        }
-    }
-
-    const fetchLeaderboardData = async () => {
-        try {
-            const response = await http({
-                url: `user/leaderboard?page=${page}&limit=10`,
-                method: 'GET'
-            })
-
-            if (response.data.status) {
-                const { leaderboard: newLeaderboard } = response.data.data
-
-                const processedData = newLeaderboard
-                    .map((currentFriend: any) => {
-                        if (!currentFriend) return null
-
-                        const chargingDuration = parseInt(currentFriend.total_charging_duration || '0')
-
-                        return {
-                            isMe: currentFriend.id === user.id,
-                            totalHours: parseFloat((chargingDuration / 60).toFixed(2)),
-                            name: utils.helpers.user.getFullName(currentFriend),
-                            totalDays: parseFloat((chargingDuration / 1440).toFixed(1))
-                        } as IFriend
-                    })
-                    .filter(Boolean)
-
-                setLeaderboard(prev => (page === 1 ? processedData : [...prev, ...processedData]))
-                if (processedData.length === 0) {
-                    setHasMore(false)
-                } else {
-                    setPage(prevPage => prevPage + 1)
-                }
-            }
-        } catch (error) {
-            console.error('Error fetching leaderboard data:', error)
-            setHasMore(false)
-        } finally {
-            setLoading(false)
-        }
-    }
-
-    useEffect(() => {
-        fetchDashboardData()
-        fetchLeaderboardData()
-    }, [])
-
-    const onGettingStartedClick = () => {
-        modalContext.openModal({
-            type: 'info',
-            props: {
-                html: null,
-                heading: 'Getting Started',
-                cancelButtonText: 'Close',
-                onOkClick: () => {
-                    modalContext.closeModal('info')
-                },
-                visible: true
-            }
-        })
-    }
+    const [leaderboardMode, setLeaderboardMode] = useState<LeaderboardMode>('all_time')
+    const [leaderboardLoading, setLeaderboardLoading] = useState(true)
+    const [leaderboardRows, setLeaderboardRows] = useState<ILeaderboardRow[]>([])
+    const [weekWindowLabel, setWeekWindowLabel] = useState<string>('')
 
     const challenges = [
         { label: 'Create a Challenge', icon: PlusCircle },
@@ -222,6 +120,144 @@ export default function Home() {
         }
     ]
 
+    const leaderboardHeader = useMemo(() => {
+        return leaderboardMode === 'this_week'
+            ? `This week (Mon 12pm → Mon 12pm)${weekWindowLabel ? ` · ${weekWindowLabel}` : ''}`
+            : 'All time'
+    }, [leaderboardMode, weekWindowLabel])
+
+    const loadStats = async () => {
+        if (!user?.id) return
+
+        try {
+            const { data, error } = await supabase
+                .from('public_user_stats')
+                .select('total_seconds')
+                .eq('user_id', user.id)
+                .maybeSingle()
+
+            if (error) throw error
+
+            const totalSeconds = Number(data?.total_seconds ?? 0)
+            const totalHours = (totalSeconds / 3600).toFixed(2)
+
+            // Minimal, non-blocking stats for MVP (we can improve later)
+            setStats([
+                { label: 'Current Streak', value: '—', icon: Trophy },
+                { label: 'Daily Average', value: '—', icon: Clock },
+                { label: 'Total Hours Saved', value: `${totalHours} hours`, icon: Clock },
+                { label: 'Logged in as', value: user.email ?? '', icon: Users }
+            ])
+        } catch (error: any) {
+            console.error('Home.loadStats error', error)
+            // Don’t fail the page if stats fail
+            setStats([
+                { label: 'Current Streak', value: '—', icon: Trophy },
+                { label: 'Daily Average', value: '—', icon: Clock },
+                { label: 'Total Hours Saved', value: '—', icon: Clock },
+                { label: 'Logged in as', value: user.email ?? '', icon: Users }
+            ])
+        }
+    }
+
+    const mapRows = (rows: GlobalLeaderboardRow[]): ILeaderboardRow[] => {
+        return (rows ?? []).map(r => {
+            const email = String(r.email ?? '')
+            const displayName = String(r.display_name ?? '').trim()
+            const name = displayName || email.split('@')[0] || 'User'
+
+            return {
+                userId: r.user_id,
+                isMe: r.user_id === user.id,
+                name,
+                email,
+                totalHours: Number(r.total_hours ?? 0)
+            }
+        })
+    }
+
+    const loadLeaderboardAllTime = async () => {
+        const { data, error } = await supabase
+            .from('global_leaderboard_all_time')
+            .select('user_id,email,display_name,total_hours,total_seconds')
+            .order('total_seconds', { ascending: false })
+            .limit(100)
+
+        if (error) throw error
+
+        setLeaderboardRows(mapRows((data ?? []) as any))
+        setWeekWindowLabel('')
+    }
+
+    const loadLeaderboardThisWeek = async () => {
+        const { data: bounds, error: boundsError } = await supabase.rpc('current_week_bounds_monday_noon', {
+            tz: 'Australia/Sydney'
+        })
+
+        if (boundsError) throw boundsError
+
+        const from_ts = bounds?.[0]?.from_ts
+        const to_ts = bounds?.[0]?.to_ts
+
+        if (!from_ts || !to_ts) {
+            throw new Error('Failed to determine current week range')
+        }
+
+        setWeekWindowLabel(`${String(from_ts).slice(0, 10)} → ${String(to_ts).slice(0, 10)}`)
+
+        const { data, error } = await supabase.rpc('global_leaderboard_range', {
+            from_ts,
+            to_ts
+        })
+
+        if (error) throw error
+
+        setLeaderboardRows(mapRows((data ?? []) as any))
+    }
+
+    const loadLeaderboard = async () => {
+        setLeaderboardLoading(true)
+        try {
+            if (leaderboardMode === 'this_week') {
+                await loadLeaderboardThisWeek()
+            } else {
+                await loadLeaderboardAllTime()
+            }
+        } catch (error: any) {
+            console.error('Home.loadLeaderboard error', error)
+            utils.toast.error({ message: error?.message ?? 'Failed to load leaderboard' })
+            setLeaderboardRows([])
+        } finally {
+            setLeaderboardLoading(false)
+        }
+    }
+
+    useEffect(() => {
+        loadStats()
+        loadLeaderboard()
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
+
+    useEffect(() => {
+        loadLeaderboard()
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [leaderboardMode])
+
+    const onGettingStartedClick = () => {
+        modalContext.openModal({
+            type: 'info',
+            props: {
+                html: null,
+                heading: 'Getting Started',
+                cancelButtonText: 'Close',
+                onOkClick: () => {
+                    modalContext.closeModal('info')
+                },
+                visible: true
+            }
+        })
+    }
+
     return (
         <div className='space-y-6'>
             {/* Welcome Message and Challenge Types */}
@@ -270,7 +306,7 @@ export default function Home() {
 
             {/* Stats Grid */}
             <div className='grid grid-cols-1 gap-4 sm:grid-cols-4'>
-                {loading ? (
+                {stats.length === 0 ? (
                     <div className='col-span-full flex justify-center items-center max-md:min-h-[400px] md:min-h-[95px]'>
                         <Loader size='md' />
                     </div>
@@ -324,100 +360,88 @@ export default function Home() {
             <div className='grid grid-cols-1 lg:grid-cols-2 gap-6'>
                 <div className='bg-white shadow rounded-lg overflow-hidden'>
                     <div className='px-4 py-5 sm:p-6'>
-                        <Link
-                            to={utils.helpers.getRoute('/friends')}
-                            className='text-lg font-medium text-gray-900 mb-4 hover:text-primary transition-colors block'
-                        >
-                            Leaderboard
-                        </Link>
-                        {leaderboard.length === 1 ? (
-                            <NoDataToShow text='Add some friends and compete with them on the leaderboard.' />
-                        ) : (
-                            <div className='overflow-x-auto mt-4'>
-                                <table className='min-w-full border-collapse'>
+                        <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3'>
+                            <div>
+                                <h3 className='text-lg font-medium text-gray-900'>Global Leaderboard</h3>
+                                <div className='text-xs text-gray-500 mt-1'>{leaderboardHeader}</div>
+                            </div>
+
+                            <div className='flex items-center gap-2'>
+                                <button
+                                    onClick={() => setLeaderboardMode('all_time')}
+                                    className={
+                                        leaderboardMode === 'all_time'
+                                            ? 'px-3 py-2 rounded-md bg-primary text-white text-sm'
+                                            : 'px-3 py-2 rounded-md bg-gray-100 text-gray-900 text-sm hover:bg-gray-200'
+                                    }
+                                >
+                                    All time
+                                </button>
+                                <button
+                                    onClick={() => setLeaderboardMode('this_week')}
+                                    className={
+                                        leaderboardMode === 'this_week'
+                                            ? 'px-3 py-2 rounded-md bg-primary text-white text-sm'
+                                            : 'px-3 py-2 rounded-md bg-gray-100 text-gray-900 text-sm hover:bg-gray-200'
+                                    }
+                                >
+                                    This week
+                                </button>
+                            </div>
+                        </div>
+
+                        <div className='overflow-x-auto mt-4'>
+                            {leaderboardLoading ? (
+                                <div className='flex justify-center items-center min-h-[120px]'>
+                                    <Loader size='md' />
+                                </div>
+                            ) : !leaderboardRows.length ? (
+                                <NoDataToShow text='No leaderboard data yet.' />
+                            ) : (
+                                <table className='min-w-full divide-y divide-gray-200'>
                                     <thead>
                                         <tr>
                                             <th className='px-3 py-2 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase w-2/4'>
                                                 Name
                                             </th>
-                                            <th className=' py-2 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase w-1/4'>
-                                                Hours
+                                            <th className='px-3 py-2 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase w-2/4'>
+                                                Email
                                             </th>
-                                            <th className=' py-2 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase w-1/4'>
-                                                Days
+                                            <th className='px-3 py-2 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase w-1/4'>
+                                                Total Hours
                                             </th>
                                         </tr>
                                     </thead>
-                                    {loading ? (
-                                        <tbody>
-                                            <tr>
-                                                <td colSpan={3} className='py-10'>
-                                                    <div className='flex justify-center items-center'>
-                                                        <Loader size='md' />
-                                                    </div>
+                                    <tbody className='bg-white divide-y divide-gray-200'>
+                                        {leaderboardRows.map(row => (
+                                            <tr
+                                                key={row.userId}
+                                                className={row.isMe ? 'bg-indigo-50' : 'hover:bg-gray-50'}
+                                            >
+                                                <td className='px-3 py-2 whitespace-nowrap text-sm font-medium text-gray-900'>
+                                                    {row.isMe ? `Me (${row.name})` : row.name}
+                                                </td>
+                                                <td className='px-3 py-2 whitespace-nowrap text-sm text-gray-600'>
+                                                    {row.email}
+                                                </td>
+                                                <td className='px-3 py-2 whitespace-nowrap text-sm text-gray-600'>
+                                                    {row.totalHours.toFixed(2)}
                                                 </td>
                                             </tr>
-                                        </tbody>
-                                    ) : (
-                                        <tbody className='divide-y divide-gray-100'>
-                                            <tr>
-                                                <td colSpan={3}>
-                                                    <div
-                                                        className='max-h-[180px] overflow-y-auto h-full'
-                                                        id='leaderboardContainer'
-                                                    >
-                                                        <InfiniteScroll
-                                                            dataLength={leaderboard.length}
-                                                            next={() => {
-                                                                fetchLeaderboardData()
-                                                            }}
-                                                            hasMore={hasMore}
-                                                            scrollableTarget='leaderboardContainer'
-                                                            scrollThreshold={'80%'}
-                                                            loader={
-                                                                <h4
-                                                                    style={{
-                                                                        textAlign: 'center',
-                                                                        padding: '10px'
-                                                                    }}
-                                                                >
-                                                                    Loading...
-                                                                </h4>
-                                                            }
-                                                            className='flex flex-col justify-between w-full'
-                                                            endMessage={
-                                                                <NoDataToShow
-                                                                    center={true}
-                                                                    text={'No more items to load.'}
-                                                                />
-                                                            }
-                                                        >
-                                                            {leaderboard.map(leaderboard => (
-                                                                <table key={leaderboard.name}>
-                                                                    <tbody>
-                                                                        <tr className='hover:bg-gray-50'>
-                                                                            <td className='px-3 py-2 whitespace-nowrap text-sm font-medium text-gray-900 w-2/4'>
-                                                                                {leaderboard.name}
-                                                                            </td>
-                                                                            <td className='px-3 py-2 whitespace-nowrap text-sm text-gray-500 w-1/4'>
-                                                                                {leaderboard.totalHours}
-                                                                            </td>
-                                                                            <td className='px-3 py-2 whitespace-nowrap text-sm text-gray-500 w-1/4'>
-                                                                                {leaderboard.totalDays}
-                                                                            </td>
-                                                                        </tr>
-                                                                    </tbody>
-                                                                </table>
-                                                            ))}
-                                                        </InfiniteScroll>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    )}
+                                        ))}
+                                    </tbody>
                                 </table>
-                            </div>
-                        )}
+                            )}
+                        </div>
+
+                        <div className='mt-4'>
+                            <Link
+                                to={utils.helpers.getRoute('/friends')}
+                                className='text-sm text-primary hover:text-primaryDark transition-colors'
+                            >
+                                Friends leaderboard
+                            </Link>
+                        </div>
                     </div>
                 </div>
 
