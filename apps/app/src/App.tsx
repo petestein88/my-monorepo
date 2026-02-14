@@ -45,7 +45,12 @@ function App() {
         return (
             <Routes>
                 <Route path={utils.helpers.getRoute('/app')} element={<Layout />}>
-                    <Route index element={<Portal />} />
+                    {/* Summary should be the default landing page inside the app */}
+                    <Route index element={<Home />} />
+
+                    {/* Keep Portal page accessible for debugging/reference */}
+                    <Route path={utils.helpers.getRoute('/app/portal')} element={<Portal />} />
+
                     <Route path={utils.helpers.getRoute('/app/home')} element={<Home />} />
                     <Route path={utils.helpers.getRoute('/app/data')} element={<Data />} />
                     <Route path={utils.helpers.getRoute('/app/friends')} element={<Friends />} />
